@@ -34,6 +34,8 @@ public interface CartService
      */
     Cart findCartById(long id);
 
+    Cart createCart();
+
     /**
      * Creates a new cart for this user populated with this product
      *

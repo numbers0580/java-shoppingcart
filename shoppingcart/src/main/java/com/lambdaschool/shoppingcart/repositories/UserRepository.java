@@ -4,5 +4,5 @@ import com.lambdaschool.shoppingcart.models.User;
 import org.springframework.data.repository.CrudRepository;
 
 public interface UserRepository extends CrudRepository<User, Long> {
-    User findByUserName(String name);
+    User findByUsername(String name);
 }

@@ -12,7 +12,7 @@ public class HelpFunctionsImpl implements HelperFunctions {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return username.equalsIgnoreCase(authentication.getName().toLowerCase()) || authentication.getAuthorities()
-            .contains(new SimpleGrantedAuthority("ADMIN"));
+            .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 
     public String getCurrentAuditor() {

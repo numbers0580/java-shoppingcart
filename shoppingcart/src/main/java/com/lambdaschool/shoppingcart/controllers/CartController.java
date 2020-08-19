@@ -3,7 +3,9 @@ package com.lambdaschool.shoppingcart.controllers;
 import com.lambdaschool.shoppingcart.models.Cart;
 import com.lambdaschool.shoppingcart.models.Product;
 import com.lambdaschool.shoppingcart.models.User;
+import com.lambdaschool.shoppingcart.repositories.UserRepository;
 import com.lambdaschool.shoppingcart.services.CartService;
+import com.lambdaschool.shoppingcart.services.HelperFunctions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,12 @@ public class CartController
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private HelperFunctions helperFunctions;
+
     @GetMapping(value = "/user/{userid}", produces = {"application/json"})
     public ResponseEntity<?> listAllCarts(@PathVariable long userid)
     {
@@ -32,14 +40,21 @@ public class CartController
     }
 
     // Dropped the {userid} Path as advised by instructor
-    /*
-    @GetMapping(value = "/user/", produces = {"application/json"})
+    @GetMapping(value = "/user", produces = {"application/json"})
     public ResponseEntity<?> authUser()
     {
-        List<Cart> myCarts = cartService.findAllByUserId();
-        return new ResponseEntity<>(myCarts, HttpStatus.OK);
+        User theUser = userRepository.findByUsername(helperFunctions.getCurrentAuditor());
+        List<Cart> currUser = cartService.findAllByUserId(theUser.getUserid());
+        return new ResponseEntity<>(currUser, HttpStatus.OK);
     }
-    */
+
+    @PostMapping(value = "/create/product", produces="application/json")
+    public ResponseEntity<?> createNewCart() {
+        //User myUser = userRepository.findByUsername(helperFunctions.getCurrentAuditor());
+
+        cartService.createCart();
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
     @GetMapping(value = "/cart/{cartId}",
             produces = {"application/json"})
@@ -66,6 +81,7 @@ public class CartController
     public ResponseEntity<?> updateCart(@PathVariable long cartid, @PathVariable long productid)
     {
         Cart dataCart = new Cart();
+        dataCart.setUser(cartService.findCartById(cartid).getUser());
         dataCart.setCartid(cartid);
 
         Product dataProduct = new Product();

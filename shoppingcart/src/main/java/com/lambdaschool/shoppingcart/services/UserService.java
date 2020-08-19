@@ -24,7 +24,7 @@ public interface UserService
      */
     User findUserById(long id);
 
-    User findByUserName(String name);
+    User findByUsername(String name);
 
     User getUserInfo();
 

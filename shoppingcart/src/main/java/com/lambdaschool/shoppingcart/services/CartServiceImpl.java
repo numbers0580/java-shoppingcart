@@ -60,6 +60,17 @@ public class CartServiceImpl implements CartService
 
     @Transactional
     @Override
+    public Cart createCart() {
+        Cart newforUser = new Cart();
+        User myUser = userrepos.findByUsername(helperFunctions.getCurrentAuditor());
+        //User currUser = userrepos.findById(user.getUserid()).orElseThrow(() -> new ResourceNotFoundException("I can't find him!"));
+        newforUser.setUser(myUser);
+
+        return cartrepos.save(newforUser);
+    }
+
+    @Transactional
+    @Override
     public Cart save(User user, Product product)
     {
         Cart newCart = new Cart();
@@ -90,11 +101,12 @@ public class CartServiceImpl implements CartService
         Product updateProduct = productrepos.findById(product.getProductid())
                 .orElseThrow(() -> new ResourceNotFoundException("Product id " + product.getProductid() + " not found"));
 
+        String myUser = userrepos.findByUsername(helperFunctions.getCurrentAuditor()).getUsername();
         String cartOwner = userrepos.findById(cart.getUser().getUserid())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart owner was not found")).getUsername();
-        String authorized = userrepos.findByUserName(helperFunctions.getCurrentAuditor()).getUsername();
+        String authorized = userrepos.findByUsername(helperFunctions.getCurrentAuditor()).getUsername();
 
-        if(cart.getUser().getUsername().equals(authorized) || helperFunctions.isAuthorizedToMakeChange(authorized)) {
+        if(cartOwner.equals(myUser) || helperFunctions.isAuthorizedToMakeChange(authorized)) {
             if (cartrepos.checkCartItems(updateCart.getCartid(), updateProduct.getProductid()).getCount() > 0) {
                 cartrepos.updateCartItemsQuantity(userAuditing.getCurrentAuditor()
                         .get(), updateCart.getCartid(), updateProduct.getProductid(), 1);

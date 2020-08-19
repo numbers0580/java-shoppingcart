@@ -49,13 +49,13 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User findByUserName(String name) {
-        return userrepos.findByUserName(name);
+    public User findByUsername(String name) {
+        return userrepos.findByUsername(name);
     }
 
    @Override
    public User getUserInfo() {
-        return userrepos.findByUserName(helperFunctions.getCurrentAuditor());
+        return userrepos.findByUsername(helperFunctions.getCurrentAuditor());
    }
 
     @Transactional
@@ -83,8 +83,6 @@ public class UserServiceImpl implements UserService
         newUser.setComments(user.getComments());
         newUser.setPasswordNoEncrypt(user.getPassword());
 
-        //Not sure if I need newUser.getRoles().clear(); followed by for-loop involving RoleService (don't have)
-        //See Layer #48
 
         if (user.getCarts()
                 .size() > 0)

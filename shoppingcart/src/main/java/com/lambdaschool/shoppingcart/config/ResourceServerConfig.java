@@ -1,6 +1,7 @@
 package com.lambdaschool.shoppingcart.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -27,19 +28,15 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/", "/h2-console/**", "/swagger-resources/**", "/swagger-resource/**",
                         "/swagger-ui.html", "/v2/api-docs", "/webjars/**", "/createnewuser")
                 .permitAll()
-                .antMatchers("/logout")
+                .antMatchers("/logout", "/users/myinfo")
                 .authenticated()
                 .antMatchers("/users/users", "/users/user", "/users/user/**")
                 .hasAnyRole("ADMIN")
-                .antMatchers("carts/user", "/carts/create/**")
+                .antMatchers("/carts/user", "/carts/create/**")
                 .authenticated()
-                .antMatchers("carts/cart/**", "/carts/update/**", "/carts/delete/**")
+                .antMatchers("/carts/cart/**", "/carts/update/**", "/carts/delete/**", "/products/**")
                 .hasAnyRole("ADMIN")
                 .antMatchers("/carts/update/**", "/carts/delete/**")
-                .authenticated()
-                .antMatchers("/products/**")
-                .hasAnyRole("ADMIN")
-                .antMatchers("/users/myinfo")
                 .authenticated()
                 .and()
                 .exceptionHandling()
