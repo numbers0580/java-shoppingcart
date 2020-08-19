@@ -16,7 +16,7 @@ public class Role extends Auditable {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "roles", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties(value = "roles", allowSetters = true)
     private Set<UserRoles> users = new HashSet<>();
 

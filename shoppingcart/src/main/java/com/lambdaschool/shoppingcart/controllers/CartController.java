@@ -31,20 +31,26 @@ public class CartController
         return new ResponseEntity<>(myCarts, HttpStatus.OK);
     }
 
+    // Dropped the {userid} Path as advised by instructor
+    /*
+    @GetMapping(value = "/user/", produces = {"application/json"})
+    public ResponseEntity<?> authUser()
+    {
+        List<Cart> myCarts = cartService.findAllByUserId();
+        return new ResponseEntity<>(myCarts, HttpStatus.OK);
+    }
+    */
+
     @GetMapping(value = "/cart/{cartId}",
             produces = {"application/json"})
-    public ResponseEntity<?> getCartById(
-            @PathVariable
-                    Long cartId)
+    public ResponseEntity<?> getCartById(@PathVariable Long cartId)
     {
         Cart p = cartService.findCartById(cartId);
-        return new ResponseEntity<>(p,
-                                    HttpStatus.OK);
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
     @PostMapping(value = "/create/user/{userid}/product/{productid}")
-    public ResponseEntity<?> addNewCart(@PathVariable long userid,
-                                        @PathVariable long productid)
+    public ResponseEntity<?> addNewCart(@PathVariable long userid, @PathVariable long productid)
     {
         User dataUser = new User();
         dataUser.setUserid(userid);
@@ -57,8 +63,7 @@ public class CartController
     }
 
     @PutMapping(value = "/update/cart/{cartid}/product/{productid}")
-    public ResponseEntity<?> updateCart(@PathVariable long cartid,
-                                        @PathVariable long productid)
+    public ResponseEntity<?> updateCart(@PathVariable long cartid, @PathVariable long productid)
     {
         Cart dataCart = new Cart();
         dataCart.setCartid(cartid);
@@ -71,8 +76,7 @@ public class CartController
     }
 
     @DeleteMapping(value = "/delete/cart/{cartid}/product/{productid}")
-    public ResponseEntity<?> deleteFromCart(@PathVariable long cartid,
-                                            @PathVariable long productid)
+    public ResponseEntity<?> deleteFromCart(@PathVariable long cartid, @PathVariable long productid)
     {
         Cart dataCart = new Cart();
         dataCart.setCartid(cartid);

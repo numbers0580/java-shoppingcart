@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "userroles")
-@IdClass(UserRoles.class)
+@IdClass(UserRolesId.class)
 public class UserRoles extends Auditable implements Serializable {
     @Id
     @ManyToOne
@@ -22,7 +22,7 @@ public class UserRoles extends Auditable implements Serializable {
     @JsonIgnoreProperties(value = "users", allowSetters = true)
     private Role role;
 
-    public UserRole() {}
+    public UserRoles() {}
 
     public UserRoles(User user, Role role) {
         this.user = user;
