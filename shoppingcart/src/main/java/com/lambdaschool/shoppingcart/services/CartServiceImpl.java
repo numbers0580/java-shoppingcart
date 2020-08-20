@@ -105,8 +105,9 @@ public class CartServiceImpl implements CartService
         String cartOwner = userrepos.findById(cart.getUser().getUserid())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart owner was not found")).getUsername();
         String authorized = userrepos.findByUsername(helperFunctions.getCurrentAuditor()).getUsername();
+        System.out.println(cartOwner + " " + myUser + " " + helperFunctions.isAuthorizedToMakeChange(myUser));
 
-        if(cartOwner.equals(myUser) || helperFunctions.isAuthorizedToMakeChange(authorized)) {
+        if(cartOwner == myUser  || helperFunctions.isAuthorizedToMakeChange(myUser)) {
             if (cartrepos.checkCartItems(updateCart.getCartid(), updateProduct.getProductid()).getCount() > 0) {
                 cartrepos.updateCartItemsQuantity(userAuditing.getCurrentAuditor()
                         .get(), updateCart.getCartid(), updateProduct.getProductid(), 1);

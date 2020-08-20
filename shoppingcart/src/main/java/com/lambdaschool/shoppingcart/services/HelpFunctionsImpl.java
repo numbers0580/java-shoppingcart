@@ -11,8 +11,13 @@ public class HelpFunctionsImpl implements HelperFunctions {
     public boolean isAuthorizedToMakeChange(String username) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        /*
         return username.equalsIgnoreCase(authentication.getName().toLowerCase()) || authentication.getAuthorities()
             .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        */
+
+        //For the if-statement I'm using in CartServiceImpl, I found the return below works better than the return above
+        return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 
     public String getCurrentAuditor() {
