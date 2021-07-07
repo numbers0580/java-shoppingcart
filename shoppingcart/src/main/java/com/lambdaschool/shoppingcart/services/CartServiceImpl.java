@@ -16,8 +16,7 @@ import java.util.List;
 
 @Transactional
 @Service(value = "cartService")
-public class CartServiceImpl
-        implements CartService
+public class CartServiceImpl implements CartService
 {
     /**
      * Connects this service to the cart repository
@@ -36,6 +35,9 @@ public class CartServiceImpl
      */
     @Autowired
     private ProductRepository productrepos;
+
+    @Autowired
+    private HelperFunctions helperFunctions;
 
     /**
      * Connects this service to the auditing service in order to get current user name
@@ -58,8 +60,18 @@ public class CartServiceImpl
 
     @Transactional
     @Override
-    public Cart save(User user,
-                     Product product)
+    public Cart createCart() {
+        Cart newforUser = new Cart();
+        User myUser = userrepos.findByUsername(helperFunctions.getCurrentAuditor());
+        //User currUser = userrepos.findById(user.getUserid()).orElseThrow(() -> new ResourceNotFoundException("I can't find him!"));
+        newforUser.setUser(myUser);
+
+        return cartrepos.save(newforUser);
+    }
+
+    @Transactional
+    @Override
+    public Cart save(User user, Product product)
     {
         Cart newCart = new Cart();
 
@@ -75,31 +87,33 @@ public class CartServiceImpl
         newCartItem.setProduct(dbproduct);
         newCartItem.setComments("");
         newCartItem.setQuantity(1);
-        newCart.getProducts()
-                .add(newCartItem);
+        newCart.getProducts().add(newCartItem);
 
         return cartrepos.save(newCart);
     }
 
     @Transactional
     @Override
-    public Cart save(Cart cart,
-                     Product product)
+    public Cart save(Cart cart, Product product)
     {
         Cart updateCart = cartrepos.findById(cart.getCartid())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart Id " + cart.getCartid() + " not found"));
         Product updateProduct = productrepos.findById(product.getProductid())
                 .orElseThrow(() -> new ResourceNotFoundException("Product id " + product.getProductid() + " not found"));
 
-        if (cartrepos.checkCartItems(updateCart.getCartid(), updateProduct.getProductid())
-                .getCount() > 0)
-        {
-            cartrepos.updateCartItemsQuantity(userAuditing.getCurrentAuditor()
-                                                      .get(), updateCart.getCartid(), updateProduct.getProductid(), 1);
-        } else
-        {
-            cartrepos.addCartItems(userAuditing.getCurrentAuditor()
-                                           .get(), updateCart.getCartid(), updateProduct.getProductid());
+        String myUser = userrepos.findByUsername(helperFunctions.getCurrentAuditor()).getUsername();
+        String cartOwner = userrepos.findById(cart.getUser().getUserid())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart owner was not found")).getUsername();
+        String authorized = userrepos.findByUsername(helperFunctions.getCurrentAuditor()).getUsername();
+        System.out.println(cartOwner + " " + myUser + " " + helperFunctions.isAuthorizedToMakeChange(myUser));
+
+        if(cartOwner == myUser  || helperFunctions.isAuthorizedToMakeChange(myUser)) {
+            if (cartrepos.checkCartItems(updateCart.getCartid(), updateProduct.getProductid()).getCount() > 0) {
+                cartrepos.updateCartItemsQuantity(userAuditing.getCurrentAuditor()
+                        .get(), updateCart.getCartid(), updateProduct.getProductid(), 1);
+            } else {
+                cartrepos.addCartItems(userAuditing.getCurrentAuditor().get(), updateCart.getCartid(), updateProduct.getProductid());
+            }
         }
 
         return cartrepos.save(updateCart);

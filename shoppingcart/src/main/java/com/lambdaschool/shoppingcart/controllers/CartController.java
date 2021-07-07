@@ -3,7 +3,9 @@ package com.lambdaschool.shoppingcart.controllers;
 import com.lambdaschool.shoppingcart.models.Cart;
 import com.lambdaschool.shoppingcart.models.Product;
 import com.lambdaschool.shoppingcart.models.User;
+import com.lambdaschool.shoppingcart.repositories.UserRepository;
 import com.lambdaschool.shoppingcart.services.CartService;
+import com.lambdaschool.shoppingcart.services.HelperFunctions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,12 @@ public class CartController
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private HelperFunctions helperFunctions;
+
     @GetMapping(value = "/user/{userid}", produces = {"application/json"})
     public ResponseEntity<?> listAllCarts(@PathVariable long userid)
     {
@@ -31,20 +39,33 @@ public class CartController
         return new ResponseEntity<>(myCarts, HttpStatus.OK);
     }
 
+    // Dropped the {userid} Path as advised by instructor
+    @GetMapping(value = "/user", produces = {"application/json"})
+    public ResponseEntity<?> authUser()
+    {
+        User theUser = userRepository.findByUsername(helperFunctions.getCurrentAuditor());
+        List<Cart> currUser = cartService.findAllByUserId(theUser.getUserid());
+        return new ResponseEntity<>(currUser, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/create/product", produces="application/json")
+    public ResponseEntity<?> createNewCart() {
+        //User myUser = userRepository.findByUsername(helperFunctions.getCurrentAuditor());
+
+        cartService.createCart();
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
     @GetMapping(value = "/cart/{cartId}",
             produces = {"application/json"})
-    public ResponseEntity<?> getCartById(
-            @PathVariable
-                    Long cartId)
+    public ResponseEntity<?> getCartById(@PathVariable Long cartId)
     {
         Cart p = cartService.findCartById(cartId);
-        return new ResponseEntity<>(p,
-                                    HttpStatus.OK);
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
     @PostMapping(value = "/create/user/{userid}/product/{productid}")
-    public ResponseEntity<?> addNewCart(@PathVariable long userid,
-                                        @PathVariable long productid)
+    public ResponseEntity<?> addNewCart(@PathVariable long userid, @PathVariable long productid)
     {
         User dataUser = new User();
         dataUser.setUserid(userid);
@@ -57,10 +78,10 @@ public class CartController
     }
 
     @PutMapping(value = "/update/cart/{cartid}/product/{productid}")
-    public ResponseEntity<?> updateCart(@PathVariable long cartid,
-                                        @PathVariable long productid)
+    public ResponseEntity<?> updateCart(@PathVariable long cartid, @PathVariable long productid)
     {
         Cart dataCart = new Cart();
+        dataCart.setUser(cartService.findCartById(cartid).getUser());
         dataCart.setCartid(cartid);
 
         Product dataProduct = new Product();
@@ -71,8 +92,7 @@ public class CartController
     }
 
     @DeleteMapping(value = "/delete/cart/{cartid}/product/{productid}")
-    public ResponseEntity<?> deleteFromCart(@PathVariable long cartid,
-                                            @PathVariable long productid)
+    public ResponseEntity<?> deleteFromCart(@PathVariable long cartid, @PathVariable long productid)
     {
         Cart dataCart = new Cart();
         dataCart.setCartid(cartid);

@@ -13,8 +13,7 @@ import java.util.List;
 
 @Transactional
 @Service(value = "userService")
-public class UserServiceImpl
-        implements UserService
+public class UserServiceImpl implements UserService
 {
     /**
      * Connects this service to the users repository
@@ -24,6 +23,9 @@ public class UserServiceImpl
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    HelperFunctions helperFunctions;
 
     @Override
     public List<User> findAll()
@@ -46,6 +48,16 @@ public class UserServiceImpl
                 .orElseThrow(() -> new ResourceNotFoundException("User id " + id + " not found!"));
     }
 
+    @Override
+    public User findByUsername(String name) {
+        return userrepos.findByUsername(name);
+    }
+
+   @Override
+   public User getUserInfo() {
+        return userrepos.findByUsername(helperFunctions.getCurrentAuditor());
+   }
+
     @Transactional
     @Override
     public void delete(long id)
@@ -61,8 +73,16 @@ public class UserServiceImpl
     {
         User newUser = new User();
 
+        if(user.getUserid() != 0) {
+            userrepos.findById(user.getUserid())
+                    .orElseThrow(() -> new ResourceNotFoundException("User id " + user.getUserid() + " was not found."));
+            newUser.setUserid(user.getUserid());
+        }
+
         newUser.setUsername(user.getUsername());
         newUser.setComments(user.getComments());
+        newUser.setPasswordNoEncrypt(user.getPassword());
+
 
         if (user.getCarts()
                 .size() > 0)
